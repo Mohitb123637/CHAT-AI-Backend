@@ -40,6 +40,9 @@ export const signup = async (req, res) => {
     });
     console.log(newUser);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message });
+    }
     console.error(error);
     res.status(500).json({ message: 'Server Error' });
   }
