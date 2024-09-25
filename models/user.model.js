@@ -13,11 +13,18 @@ const UserSchema = mongoose.Schema(
     password: {
       type: String,
       required: true,
+      minlength: 8,
     },
     number: {
       type: Number,
       required: true,
       unique: true,
+      validate: {
+        validator: function (v) {
+          return v.length === 10;
+        },
+        message: 'Phone number must be 10 digits long.',
+      },
     },
   },
   {

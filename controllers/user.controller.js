@@ -9,6 +9,13 @@ export const signup = async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(400).json({ message: 'Passwords do not match' });
     }
+
+    if (number.toString().length !== 10) {
+      return res
+        .status(400)
+        .json({ message: 'Invalid phone number, must be 10 digits' });
+    }
+
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: 'This Email already exists' });
