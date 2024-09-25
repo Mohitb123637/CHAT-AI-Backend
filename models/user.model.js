@@ -28,12 +28,8 @@ const UserSchema = mongoose.Schema(
       type: Number,
       required: true,
       unique: true,
-      validate: {
-        validator: function (v) {
-          return v.length === 10;
-        },
-        message: 'Phone number must be 10 digits long.',
-      },
+      minlength: 10,
+      maxlength: 10,
     },
   },
   {
