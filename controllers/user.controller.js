@@ -16,6 +16,14 @@ export const signup = async (req, res) => {
         .json({ message: 'Invalid phone number, must be 10 digits' });
     }
 
+    // Validate password for uppercase letter and special character
+    if (!/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return res.status(400).json({
+        message:
+          'Password must contain at least one uppercase letter and one special character.',
+      });
+    }
+
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: 'This Email already exists' });

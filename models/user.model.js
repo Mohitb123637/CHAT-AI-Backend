@@ -16,9 +16,10 @@ const UserSchema = mongoose.Schema(
       minlength: 8,
       validate: {
         validator: function (v) {
-          return /[!@#$%^&*(),.?":{}|<>]/.test(v);
+          return /[A-Z]/.test(v) && /[!@#$%^&*(),.?":{}|<>]/.test(v);
         },
-        message: 'Password must contain at least one special character.',
+        message:
+          'Password must contain at least one uppercase letter and one special character.',
       },
     },
     number: {
