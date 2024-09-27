@@ -28,6 +28,14 @@ export const signup = async (req, res) => {
     if (user) {
       return res.status(400).json({ message: 'This Email already exists' });
     }
+
+    // Check if phone number is already registered
+    const userByNumber = await User.findOne({ number });
+    if (userByNumber) {
+      return res
+        .status(400)
+        .json({ message: 'Phone number is already registered' });
+    }
     // hassing password
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ name, email, password: hashedPassword, number });
