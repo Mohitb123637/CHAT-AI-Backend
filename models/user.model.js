@@ -29,6 +29,13 @@ const UserSchema = mongoose.Schema(
       minlength: 10,
       maxlength: 10,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationCode: {
+      type: String,
+    },
   },
   {
     timestamps: true,

@@ -1,6 +1,7 @@
 import { User } from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../utils/token.utlis.js';
+import { sendVerificationCode } from '../config/Email.js';
 
 export const signup = async (req, res) => {
   try {
@@ -15,7 +16,6 @@ export const signup = async (req, res) => {
         .status(400)
         .json({ message: 'Invalid phone number, must be 10 digits' });
     }
-
     // Validate password for uppercase letter and special character
     if (!/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       return res.status(400).json({
@@ -28,7 +28,6 @@ export const signup = async (req, res) => {
     if (user) {
       return res.status(400).json({ message: 'This Email already exists' });
     }
-
     // Check if phone number is already registered
     const userByNumber = await User.findOne({ number });
     if (userByNumber) {
@@ -38,12 +37,23 @@ export const signup = async (req, res) => {
     }
     // hassing password
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword, number });
-    await newUser.save();
 
+    // verification otp code
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      number,
+      verificationCode,
+    });
+    await newUser.save();
+    sendVerificationCode(newUser.email, verificationCode);
     // Generate JWt Token
     const token = await generateToken(newUser);
-
     res.json({
       message: 'User registered successfully',
       token,
@@ -59,6 +69,26 @@ export const signup = async (req, res) => {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ message: error.message });
     }
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// Verification email
+
+export const verifyEmail = async (req, res) => {
+  try {
+    const { email, verificationCode } = req.body;
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(400).json({ message: 'User not found Please Signup' });
+    if (user.verificationCode !== verificationCode) {
+      return res.status(400).json({ message: 'Invalid Verification Code' });
+    }
+    user.isVerified = true;
+    await user.save();
+    res.json({ message: 'Email verified successfully' });
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server Error' });
   }
