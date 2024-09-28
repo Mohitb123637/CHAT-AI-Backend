@@ -100,6 +100,14 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user)
       return res.status(400).json({ message: 'User not found Please Signup' });
+
+    // Check if the user is verified
+    if (!user.isVerified) {
+      return res
+        .status(400)
+        .json({ message: 'Please verify your email before logging in.' });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid Password' });
     const token = await generateToken(user);
